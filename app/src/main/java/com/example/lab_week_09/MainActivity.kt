@@ -32,6 +32,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 
 //Previously we extend AppCompatActivity,
 //now we extend ComponentActivity
@@ -136,7 +139,7 @@ fun Home(
     )}
     //Here, we create a mutable state of Student
     //This is so that we can get the value of the input field
-    var inputField = remember { mutableStateOf(Student("")) }
+    var inputField by remember { mutableStateOf(Student("")) }
 
     //We call the HomeContent composable
     //Here, we pass:
@@ -144,17 +147,32 @@ fun Home(
     //inputField to show the input field value inside HomeContent
     //A lambda function to update the value of the inputField
     //A lambda function to add the inputField to the listData
+    val moshi = remember {
+        Moshi.Builder()
+            .add(KotlinJsonAdapterFactory())
+            .build()
+    }
+    val type = remember {
+        Types.newParameterizedType(List::class.java, Student::class.java)
+    }
+    val adapter = remember {
+        moshi.adapter<List<Student>>(type)
+    }
+
     HomeContent(
         listData,
-        inputField.value,
-        { input -> inputField.value = inputField.value.copy(input) },
+        inputField,
+        { input -> inputField = inputField.copy(input) },
         {
-            if(inputField.value.name.isNotBlank()) {
-                listData.add(inputField.value)
-                inputField.value = Student("")
+            if (inputField.name.isNotBlank()) {
+                listData.add(inputField)
+                inputField = Student("")
             }
         },
-        { navigateFromHomeToResult(listData.toList().toString()) }
+        {
+            val json = adapter.toJson(listData.toList())
+            navigateFromHomeToResult(json)
+        }
     )
 }
 
@@ -243,14 +261,24 @@ fun PreviewHome() {
 //ResultContent accepts a String parameter called listData from the Home composable
 //then displays the value of listData to the screen
 @Composable
-fun ResultContent(listData: String) {
+fun ResultContent(jsonData: String) {
+    val moshi = Moshi.Builder()
+        .add(KotlinJsonAdapterFactory())
+        .build()
+
+    val type = Types.newParameterizedType(List::class.java, Student::class.java)
+    val adapter = moshi.adapter<List<Student>>(type)
+
+    val list: List<Student>? = adapter.fromJson(jsonData)
+
     Column(
         modifier = Modifier
-            .padding(vertical = 4.dp)
+            .padding(16.dp)
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        //Here, we call the OnBackgroundItemText UI Element
-        OnBackgroundItemText(text = listData)
+        list?.forEach {
+            OnBackgroundItemText(text = it.name)
+        }
     }
 }
