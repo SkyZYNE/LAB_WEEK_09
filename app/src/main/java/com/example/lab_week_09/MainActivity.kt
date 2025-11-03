@@ -23,7 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-
+import com.example.lab_week_09.ui.theme.OnBackgroundTitleText
+import com.example.lab_week_09.ui.theme.OnBackgroundItemText
+import com.example.lab_week_09.ui.theme.PrimaryTextButton
 
 //Previously we extend AppCompatActivity,
 //now we extend ComponentActivity
@@ -122,7 +124,8 @@ fun HomeContent(
                 //You can also use verticalArrangement = Arrangement.Center to align the Column vertically
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = stringResource(
+                //Here, we call the OnBackgroundTitleText UI Element
+                OnBackgroundTitleText(text = stringResource(
                     id = R.string.enter_item)
                 )
                 //Here, we use TextField to display a text input field
@@ -141,18 +144,11 @@ fun HomeContent(
                         onInputValueChange(it)
                     }
                 )
-                //Here, we use Button to display a button
-                //the onClick parameter is used to set what happens when the button is clicked
-                Button(onClick = {
-                    //Here, we call the onButtonClick lambda function
-                    //This is so that we can add the inputField value to the listData
-                    //and reset the value of the inputField
+                //Here, we call the PrimaryTextButton UI Element
+                PrimaryTextButton(text = stringResource(
+                    id = R.string.button_click)
+                ) {
                     onButtonClick()
-                }) {
-                    //Set the text of the button
-                    Text(text = stringResource(
-                        id = R.string.button_click)
-                    )
                 }
             }
         }
@@ -164,7 +160,8 @@ fun HomeContent(
                 modifier = Modifier.padding(vertical = 4.dp).fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                Text(text = item.name)
+                //Here, we call the OnBackgroundItemText UI Element
+                OnBackgroundItemText(text = item.name)
             }
         }
     }
